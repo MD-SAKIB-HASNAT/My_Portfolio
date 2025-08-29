@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="../images/main.png" type="image/png">
+    <title>Admin Dashboard - Sakib</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    </noscript>
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    <script type="module" src="../js/firebase-config.js"></script>
+    <script type="module" src="../js/admin.js?v=1"></script>
+    <style>
+        .drag-handle {
+            cursor: grab;
+            width: 30px;
+            text-align: center;
+            color: #00abf0;
+        }
+        .drag-handle:active {
+            cursor: grabbing;
+        }
+        .drag-handle i {
+            font-size: 16px;
+        }
+        tr, li {
+            transition: background-color 0.3s ease;
+        }
+        tr.sortable-ghost, li.sortable-ghost {
+            background-color: rgba(0, 171, 240, 0.2);
+        }
+        tr.sortable-chosen, li.sortable-chosen {
+            background-color: rgba(0, 171, 240, 0.1);
+        }
+        
+        /* Image Source Toggle Switch */
+        .image-source-toggle {
+            margin-bottom: 20px;
+        }
+        .toggle-switch-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 15px;
+        }
+        .toggle-label {
+            font-size: 0.9rem;
+            color: #fff;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-block;
+            width: 60px;
+            height: 30px;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            transition: .4s;
+            border-radius: 34px;
+            border: 1px solid #00abf0;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 22px;
+            width: 22px;
+            left: 4px;
+            bottom: 3px;
+            background-color: #00abf0;
+            transition: .4s;
+            border-radius: 50%;
+            box-shadow: 0 0 10px #00abf0, 0 0 20px #00abf0;
+        }
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: rgba(0, 0, 0, 0.5);
+        }
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(30px);
+        }
+        
+        /* File Upload Styling */
+        .file-upload-wrapper {
+            position: relative;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+        .file-upload-input {
+            position: absolute;
+            left: 0;
+            top: 0;
+            opacity: 0;
+            width: 0.1px;
+            height: 0.1px;
+            overflow: hidden;
+        }
+        .file-upload-label {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 12px 20px;
+            background-color: rgba(0, 0, 0, 0.3);
+            color: #00abf0;
+            border: 1px solid #00abf0;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 500;
+            text-align: center;
+            box-shadow: 0 0 5px rgba(0, 171, 240, 0.5);
+        }
+        .file-upload-label:hover {
+            background-color: rgba(0, 171, 240, 0.1);
+            box-shadow: 0 0 10px rgba(0, 171, 240, 0.8), 0 0 20px rgba(0, 171, 240, 0.4);
+        }
+        .file-upload-label i {
+            font-size: 1.2rem;
+        }
+        #file-name-display {
+            margin-top: 10px;
+            padding: 8px 12px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 4px;
+            font-size: 0.9rem;
+            color: #ccc;
+            text-align: center;
+            border: 1px dashed rgba(0, 171, 240, 0.5);
+        }
+        
+        .form-hint {
+            font-size: 0.8rem;
+            color: #aaa;
+            margin-top: 5px;
+        }
+        .hidden {
+            display: none;
+        }
+        
+        /* Neon input styling */
+        .neon-input {
+            background-color: rgba(0, 0, 0, 0.2);
+            border: 1px solid #00abf0;
+            color: #fff;
+            padding: 12px;
+            border-radius: 5px;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 5px rgba(0, 171, 240, 0.3);
+        }
+        .neon-input:focus {
+            outline: none;
+            border-color: #00abf0;
+            box-shadow: 0 0 10px rgba(0, 171, 240, 0.8), 0 0 20px rgba(0, 171, 240, 0.4);
+        }
+    </style>
+</head>
+<body>
+    <header class="header">
+        <a href="../index.html" class="logo neon-glow">Sakib</a>
+        
+        <div class="menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <nav class="navbar">
+            <a href="../index.html" style="--i:1;">Home</a>
+            <a href="../index.html#education" style="--i:2;">Education</a>
+            <a href="../index.html#skills" style="--i:3;">Skills</a>
+            <a href="../index.html#projects" style="--i:4;">Projects</a>
+            <a href="../index.html#contact" style="--i:5;">Contact</a>
+            <a href="admin.html" class="active" style="--i:6;">Admin</a>
+        </nav>
+    </header>
+
+    <section class="admin" id="admin">
+        <h2 class="heading">Admin <span class="neon-glow">Dashboard</span></h2>
+        
+        <div class="admin-container">
+            <div class="admin-sidebar neon-box-glow">
+                <ul class="admin-nav">
+                    <li class="admin-nav-item active" data-target="projects-panel">Manage Projects</li>
+                    <li class="admin-nav-item" data-target="skills-panel">Manage Skills</li>
+                    <li class="admin-nav-item" data-target="education-panel">Manage Education</li>
+                    <li class="admin-nav-item" data-target="settings-panel">Settings</li>
+                </ul>
+                <div class="sidebar-footer">
+                    <button id="logout-btn" class="btn neon-glow">Logout</button>
+                </div>
+            </div>
+            
+            <div class="admin-content">
+                <!-- Projects Panel -->
+                <div class="admin-panel active" id="projects-panel">
+                    <h3>Manage Projects</h3>
+                    
+                    <div class="admin-actions">
+                        <button id="add-project-btn" class="btn neon-glow">Add New Project</button>
+                    </div>
+                    
+                    <div class="project-list neon-box-glow">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Title</th>
+                                    <th>Technologies</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="project-table-body">
+                                <!-- Project rows will be loaded dynamically -->
+                            </tbody>
+                        </table>
+                    </div>
+                    
+                    <!-- Add/Edit Project Form (Hidden by default) -->
+                    <div class="project-form-container hidden" id="project-form-container">
+                        <div class="project-form neon-box-glow">
+                            <h3 id="project-form-title">Add New Project</h3>
+                            <form id="project-form">
+                                <input type="hidden" id="project-id">
+                                
+                                <div class="form-group">
+                                    <label for="project-title">Project Title</label>
+                                    <input type="text" id="project-title" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="project-description">Short Description</label>
+                                    <textarea id="project-description" required></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="project-full-description">Full Description (HTML)</label>
+                                    <textarea id="project-full-description" rows="6" required></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="project-technologies">Technologies (comma separated)</label>
+                                    <input type="text" id="project-technologies" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="project-features">Features (one per line)</label>
+                                    <textarea id="project-features" rows="4" required></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="project-challenges">Challenges (one per line)</label>
+                                    <textarea id="project-challenges" rows="4" required></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="project-github">GitHub URL (optional)</label>
+                                    <input type="text" id="project-github" placeholder="https://github.com/username/repo">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="project-demo">Demo URL (optional)</label>
+                                    <input type="text" id="project-demo" placeholder="https://example.com">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label>Project Images</label>
+                                    <div class="image-source-toggle">
+                                        <div class="toggle-switch-container">
+                                            <div class="toggle-label">Upload Images</div>
+                                            <label class="toggle-switch">
+                                                <input type="checkbox" id="image-source-toggle">
+                                                <span class="toggle-slider"></span>
+                                            </label>
+                                            <div class="toggle-label">Image URLs</div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="image-upload-container">
+                                        <div class="file-upload-wrapper">
+                                            <label for="project-image-file" class="file-upload-label">
+                                                <i class="fas fa-cloud-upload-alt"></i> Choose Images
+                                            </label>
+                                            <input type="file" id="project-image-file" accept="image/jpeg,image/png,image/webp" class="file-upload-input" multiple>
+                                            <div id="file-name-display">No files selected</div>
+                                        </div>
+                                        <p class="form-hint">Recommended size: 800x600 pixels, Max size: 2MB per image</p>
+                                    </div>
+                                    
+                                    <div id="image-url-container" class="hidden">
+                                        <div id="image-urls-container">
+                                            <div class="image-url-input-group">
+                                                <input type="text" class="project-image-url neon-input" placeholder="https://example.com/image.jpg">
+                                                <button type="button" class="remove-url-btn btn"><i class="fas fa-times"></i></button>
+                                            </div>
+                                        </div>
+                                        <button type="button" id="add-image-url-btn" class="btn neon-glow"><i class="fas fa-plus"></i> Add Another Image URL</button>
+                                        <p class="form-hint">Enter direct links to images (JPG, PNG, WebP)</p>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="button" id="cancel-project-btn" class="btn">Cancel</button>
+                                    <button type="submit" class="btn neon-glow">Save Project</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Skills Panel -->
+                <div class="admin-panel" id="skills-panel">
+                    <h3>Manage Skills</h3>
+                    
+                    <div class="skills-categories neon-box-glow">
+                        <h4>Skill Categories</h4>
+                        <ul id="skill-categories-list">
+                            <!-- Skill categories will be loaded dynamically -->
+                        </ul>
+                        <div class="add-category-form">
+                            <input type="text" id="new-category-name" placeholder="New Category Name">
+                            <button id="add-category-btn" class="btn neon-glow">Add Category</button>
+                        </div>
+                    </div>
+                    
+                    <div class="skills-management neon-box-glow">
+                        <h4>Skills in <span id="current-category">Programming Languages</span></h4>
+                        <ul id="skills-list">
+                            <!-- Skills will be loaded dynamically -->
+                        </ul>
+                        <div class="add-skill-form">
+                            <input type="text" id="new-skill-name" placeholder="New Skill Name">
+                            <button id="add-skill-btn" class="btn neon-glow">Add Skill</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Education Panel -->
+                <div class="admin-panel" id="education-panel">
+                    <h3>Manage Education</h3>
+                    
+                    <div class="admin-actions">
+                        <button id="add-education-btn" class="btn neon-glow">Add New Education</button>
+                    </div>
+                    
+                    <div class="education-list neon-box-glow">
+                        <table class="admin-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>Degree/Certificate</th>
+                                    <th>Institution</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="education-table-body">
+                                <!-- Education entries will be loaded dynamically -->
+                            </tbody>
+                        </table>
+                        
+                        <div id="education-form-container" class="form-container hidden">
+                            <h4 id="education-form-title">Add New Education</h4>
+                            <form id="education-form">
+                                <input type="hidden" id="education-id">
+                                
+                                <div class="form-group">
+                                    <label for="education-degree">Degree/Certificate</label>
+                                    <input type="text" id="education-degree" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="education-institution">Institution</label>
+                                    <input type="text" id="education-institution" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="education-location">Location</label>
+                                    <input type="text" id="education-location" required>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="education-gpa">GPA/CGPA</label>
+                                    <input type="text" id="education-gpa" placeholder="e.g., 3.87 / 4.00">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="education-field">Field/Group</label>
+                                    <input type="text" id="education-field" placeholder="e.g., Science, Computer Science">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="education-status">Status</label>
+                                    <input type="text" id="education-status" placeholder="e.g., Completed, Currently pursuing">
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="education-year">Year</label>
+                                    <input type="text" id="education-year" placeholder="e.g., 2022 – Present" required>
+                                </div>
+                                
+                                <div class="form-actions">
+                                    <button type="button" id="cancel-education-btn" class="btn">Cancel</button>
+                                    <button type="submit" class="btn neon-glow">Save Education</button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings Panel -->
+                <div class="admin-panel" id="settings-panel">
+                    <h3>Settings</h3>
+                    <div class="settings-form neon-box-glow">
+                        <div class="form-group">
+                            <label for="admin-email">Admin Email</label>
+                            <input type="email" id="admin-email" placeholder="Email" disabled>
+                        </div>
+                        <div class="form-group">
+                            <label for="admin-password">Change Password</label>
+                            <input type="password" id="admin-password" placeholder="New Password">
+                        </div>
+                        <button id="save-settings-btn" class="btn neon-glow">Save Settings</button>
+                        <p class="settings-note">Note: Password changes are managed through Firebase Authentication. For security reasons, you may need to reauthenticate.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Confirmation Dialog Component -->
+    <div id="confirmation-dialog" class="modal">
+        <div class="modal-content neon-box-glow">
+            <h3 id="dialog-title">Confirm Action</h3>
+            <p id="dialog-message">Are you sure you want to proceed?</p>
+            <div class="modal-buttons">
+                <button id="dialog-cancel" class="btn">Cancel</button>
+                <button id="dialog-confirm" class="btn neon-glow">Confirm</button>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2025 Sakib</p>
+        </div>
+    </footer>
+</body>
+</html>

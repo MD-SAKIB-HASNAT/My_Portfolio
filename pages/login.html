@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+    
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="icon" href="../images/main.png" type="image/png">
+    <title>Admin Login - Sakib</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript>
+        <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;600;700;800;900&family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+    </noscript>
+    <script type="module" src="../js/firebase-config.js"></script>
+</head>
+<body>
+    <header class="header">
+        <a href="../index.html" class="logo neon-glow">Sakib</a>
+        
+        <div class="menu-btn">
+            <span></span>
+            <span></span>
+            <span></span>
+        </div>
+
+        <nav class="navbar">
+            <a href="../index.html" style="--i:1;">Home</a>
+            <a href="../index.html#skills" style="--i:2;">Skills</a>
+            <a href="../index.html#education" style="--i:3;">Education</a>
+            <a href="../index.html#projects" style="--i:4;">Projects</a>
+            <a href="../index.html#contact" style="--i:5;">Contact</a>
+            <a href="login.html" class="active" style="--i:6;">Admin</a>
+        </nav>
+    </header>
+
+    <section class="login" id="login">
+        <h2 class="heading">Admin <span class="neon-glow">Login</span></h2>
+        
+        <div class="login-container neon-box-glow">
+            <form id="login-form">
+                <div class="form-group">
+                    <label for="admin-email"><b>Email</b></label>
+                    <input type="email" id="admin-email" placeholder="Email" required>
+                </div>
+                <div class="form-group">
+                    <label for="admin-password"><b>Password</b></label>
+                    <input type="password" id="admin-password" placeholder="Password" required>
+                </div>
+                <div id="login-error" class="error-message hidden"></div>
+                <button type="submit" class="btn neon-glow">Login</button>
+            </form>
+        </div>
+    </section>
+
+    <footer>
+        <div class="footer-content">
+            <p>&copy; 2023 Sakib</p>
+        </div>
+    </footer>
+
+    <script type="module">
+        // Import Firebase authentication functions
+        import { auth, signInWithEmailAndPassword } from '../js/firebase-config.js';
+        console.log('Firebase Auth loaded:', auth);
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            const loginForm = document.getElementById('login-form');
+            const loginError = document.getElementById('login-error');
+
+            loginForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                // Reset error message
+                loginError.classList.add('hidden');
+                loginError.textContent = '';
+                
+                const email = document.getElementById('admin-email').value;
+                const password = document.getElementById('admin-password').value;
+                
+                // Show loading state
+                const submitBtn = this.querySelector('button[type="submit"]');
+                submitBtn.disabled = true;
+                submitBtn.textContent = 'Logging in...';
+                
+                // Sign in with Firebase Authentication
+                signInWithEmailAndPassword(auth, email, password)
+                    .then((userCredential) => {
+                        // Successful login
+                        const user = userCredential.user;
+                        console.log('Logged in user:', user.email);
+                        
+                        // Set a session flag to indicate successful login
+                        sessionStorage.setItem('adminLoggedIn', 'true');
+                        sessionStorage.setItem('adminEmail', user.email);
+                        
+                        // Redirect to admin dashboard
+                        window.location.href = 'admin.html';
+                    })
+                    .catch((error) => {
+                        // Handle errors
+                        console.error('Login error:', error);
+                        loginError.textContent = 'Login failed: ' + error.message;
+                        loginError.classList.remove('hidden');
+                        
+                        // Reset button state
+                        submitBtn.disabled = false;
+                        submitBtn.textContent = 'Login';
+                    });
+            });
+
+            // Menu button functionality
+            const menuBtn = document.querySelector('.menu-btn');
+            const navbar = document.querySelector('.navbar');
+
+            menuBtn.addEventListener('click', () => {
+                menuBtn.classList.toggle('active');
+                navbar.classList.toggle('active');
+            });
+        });
+    </script>
+</body>
+</html>
