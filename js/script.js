@@ -797,7 +797,9 @@ async function updateSkillsFromFirestore(maxItems = 10) {
 // Sample education data as fallback
 const sampleEducation = [
     { degree: 'B.Sc. in Computer Science & Engineering', institution: 'International University of Business Agriculture and Technology', location: 'Uttara, Dhaka, Bangladesh', gpa: 'CGPA: 3.87 / 4.00', status: 'Currently pursuing', year: '2022 – Present' },
-    { degree: 'Higher Secondary Certificate', institution: 'Hatimara High School And Colllege', location: 'Gazipur, Bangladesh', gpa: 'GPA: 5.00 / 5.00', field: 'Group: Science', status: 'Completed', year: '2018 – 2020' }
+    { degree: 'Higher Secondary Certificate', institution: 'Hatimara High School And Colllege', location: 'Gazipur, Bangladesh', gpa: 'GPA: 5.00 / 5.00', field: 'Group: Science', status: 'Completed', year: '2018 – 2020' },
+    { degree: 'Secondary School Certificate', institution: 'Hatimara High School And Colllege', location: 'Gazipur, Bangladesh', gpa: 'GPA: 5.00 / 5.00', field: 'Group: Science', status: 'Completed', year: '2016 – 2018' }
+
 ];
 
 // Function to load sample education as fallback
